@@ -151,6 +151,305 @@ class Hearts3DBackground {
 
 
 /* ═══════════════════════════════════════
+   3D PHOTO CUBE
+   ═══════════════════════════════════════ */
+class PhotoCube3D {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas || typeof THREE === 'undefined') return;
+
+        this.isDragging = false;
+        this.prevMouse = { x: 0, y: 0 };
+        this.velocity = { x: 0, y: 0 };
+        this.autoRotateSpeed = 0.003;
+        this.damping = 0.95;
+        this.clock = new THREE.Clock();
+
+        this._setup();
+        this._buildCube();
+        this._addListeners();
+        this._animate();
+    }
+
+    _setup() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        const size = Math.min(rect.width, rect.height) || 320;
+
+        this.scene = new THREE.Scene();
+
+        this.camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+        this.camera.position.set(0, 0.3, 3.8);
+        this.camera.lookAt(0, 0, 0);
+
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas,
+            alpha: true,
+            antialias: true
+        });
+        this.renderer.setSize(size, size);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.shadowMap.enabled = true;
+
+        // Lighting
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+        const key = new THREE.DirectionalLight(0xffffff, 1.0);
+        key.position.set(3, 4, 5);
+        key.castShadow = true;
+        this.scene.add(key);
+
+        const pink = new THREE.PointLight(0xff69b4, 0.8, 20);
+        pink.position.set(-3, 2, 3);
+        this.scene.add(pink);
+
+        const warm = new THREE.PointLight(0xffb6c1, 0.5, 15);
+        warm.position.set(2, -2, 2);
+        this.scene.add(warm);
+    }
+
+    _makeCanvasTexture(drawFn, bgColor) {
+        const c = document.createElement('canvas');
+        c.width = 512; c.height = 512;
+        const ctx = c.getContext('2d');
+
+        // Background
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, 512, 512);
+
+        drawFn(ctx);
+
+        const tex = new THREE.CanvasTexture(c);
+        tex.anisotropy = 4;
+        return tex;
+    }
+
+    _buildCube() {
+        // Face 1: "I ❤️ Abuy"
+        const face1 = this._makeCanvasTexture((ctx) => {
+            const grd = ctx.createLinearGradient(0, 0, 512, 512);
+            grd.addColorStop(0, '#ff69b4');
+            grd.addColorStop(1, '#ff1493');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 72px Fredoka, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('I', 256, 160);
+            ctx.font = '120px serif';
+            ctx.fillText('❤️', 256, 290);
+            ctx.font = 'bold 72px Fredoka, sans-serif';
+            ctx.fillText('Abuy', 256, 410);
+        }, '#ff69b4');
+
+        // Face 2: Hearts pattern
+        const face2 = this._makeCanvasTexture((ctx) => {
+            ctx.font = '60px serif';
+            ctx.textAlign = 'center';
+            const hearts = ['💖', '💕', '❤️', '💗', '💝', '💘'];
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 6; col++) {
+                    ctx.fillText(hearts[(row + col) % hearts.length], 50 + col * 85, 65 + row * 85);
+                }
+            }
+        }, '#fff0f5');
+
+        // Face 3: "Happy Valentine's Day"
+        const face3 = this._makeCanvasTexture((ctx) => {
+            const grd = ctx.createLinearGradient(0, 0, 0, 512);
+            grd.addColorStop(0, '#ffd6e0');
+            grd.addColorStop(1, '#ffb6c1');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = '#d63384';
+            ctx.font = 'bold 48px Fredoka, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Happy', 256, 170);
+            ctx.fillText("Valentine's", 256, 240);
+            ctx.fillText('Day', 256, 310);
+            ctx.font = '80px serif';
+            ctx.fillText('🌹', 256, 420);
+        }, '#ffd6e0');
+
+        // Face 4: Flower pattern
+        const face4 = this._makeCanvasTexture((ctx) => {
+            ctx.font = '55px serif';
+            ctx.textAlign = 'center';
+            const flowers = ['🌸', '🌺', '🌷', '🌼', '🌻', '💐'];
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 6; col++) {
+                    ctx.fillText(flowers[(row * 3 + col) % flowers.length], 50 + col * 85, 65 + row * 85);
+                }
+            }
+        }, '#fff5f8');
+
+        // Face 5: Stars & sparkles
+        const face5 = this._makeCanvasTexture((ctx) => {
+            const grd = ctx.createRadialGradient(256, 256, 50, 256, 256, 300);
+            grd.addColorStop(0, '#ffe6f0');
+            grd.addColorStop(1, '#ffcce0');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.font = '50px serif';
+            ctx.textAlign = 'center';
+            const items = ['✨', '⭐', '💫', '🌟', '✨', '💖'];
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 6; col++) {
+                    ctx.fillText(items[(row + col * 2) % items.length], 50 + col * 85, 65 + row * 85);
+                }
+            }
+        }, '#ffe6f0');
+
+        // Face 6: "For My Beautiful Wife"
+        const face6 = this._makeCanvasTexture((ctx) => {
+            const grd = ctx.createLinearGradient(0, 0, 512, 512);
+            grd.addColorStop(0, '#e8507a');
+            grd.addColorStop(1, '#f5a0c0');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 50px Fredoka, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('For My', 256, 180);
+            ctx.fillText('Beautiful', 256, 250);
+            ctx.fillText('Wife', 256, 320);
+            ctx.font = '60px serif';
+            ctx.fillText('💐🌷💐', 256, 420);
+        }, '#e8507a');
+
+        // Build cube
+        const cubeSize = 1.4;
+        const geo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize, 4, 4, 4);
+
+        // Materials: [right, left, top, bottom, front, back]
+        const materials = [
+            new THREE.MeshPhongMaterial({ map: face2, shininess: 40 }),  // right: hearts
+            new THREE.MeshPhongMaterial({ map: face4, shininess: 40 }),  // left: flowers
+            new THREE.MeshPhongMaterial({ map: face5, shininess: 40 }),  // top: stars
+            new THREE.MeshPhongMaterial({ map: face3, shininess: 40 }),  // bottom: valentine
+            new THREE.MeshPhongMaterial({ map: face6, shininess: 50 }),  // front: for my wife
+            new THREE.MeshPhongMaterial({ map: face1, shininess: 50 }),  // back: I ❤️ Abuy
+        ];
+
+        this.cube = new THREE.Mesh(geo, materials);
+        this.cube.castShadow = true;
+        this.scene.add(this.cube);
+
+        // Rounded edge wireframe glow
+        const edges = new THREE.EdgesGeometry(geo, 15);
+        const line = new THREE.LineSegments(
+            edges,
+            new THREE.LineBasicMaterial({ color: 0xffb6c1, transparent: true, opacity: 0.3 })
+        );
+        this.cube.add(line);
+
+        // Floating particles around cube
+        this.particles = [];
+        const particleGeo = new THREE.SphereGeometry(0.02, 6, 6);
+        for (let i = 0; i < 15; i++) {
+            const mat = new THREE.MeshBasicMaterial({
+                color: [0xff69b4, 0xffb6c1, 0xffffff][Math.floor(Math.random() * 3)],
+                transparent: true,
+                opacity: 0.5
+            });
+            const p = new THREE.Mesh(particleGeo, mat);
+            const angle = Math.random() * Math.PI * 2;
+            const r = 1.0 + Math.random() * 0.5;
+            p.position.set(Math.cos(angle) * r, (Math.random() - 0.5) * 2, Math.sin(angle) * r);
+            this.scene.add(p);
+            this.particles.push({ mesh: p, angle, radius: r, speed: 0.2 + Math.random() * 0.4, yBase: p.position.y });
+        }
+    }
+
+    _addListeners() {
+        const el = this.canvas;
+
+        // Mouse
+        el.addEventListener('mousedown', (e) => {
+            this.isDragging = true;
+            this.prevMouse = { x: e.clientX, y: e.clientY };
+            this.autoRotateSpeed = 0;
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!this.isDragging) return;
+            const dx = e.clientX - this.prevMouse.x;
+            const dy = e.clientY - this.prevMouse.y;
+            this.velocity.x = dy * 0.008;
+            this.velocity.y = dx * 0.008;
+            this.prevMouse = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('mouseup', () => {
+            this.isDragging = false;
+            // Resume auto-rotate after a bit
+            setTimeout(() => { this.autoRotateSpeed = 0.003; }, 2000);
+        });
+
+        // Touch
+        el.addEventListener('touchstart', (e) => {
+            this.isDragging = true;
+            const t = e.touches[0];
+            this.prevMouse = { x: t.clientX, y: t.clientY };
+            this.autoRotateSpeed = 0;
+        });
+        el.addEventListener('touchmove', (e) => {
+            if (!this.isDragging) return;
+            e.preventDefault();
+            const t = e.touches[0];
+            const dx = t.clientX - this.prevMouse.x;
+            const dy = t.clientY - this.prevMouse.y;
+            this.velocity.x = dy * 0.008;
+            this.velocity.y = dx * 0.008;
+            this.prevMouse = { x: t.clientX, y: t.clientY };
+        }, { passive: false });
+        el.addEventListener('touchend', () => {
+            this.isDragging = false;
+            setTimeout(() => { this.autoRotateSpeed = 0.003; }, 2000);
+        });
+
+        // Resize
+        window.addEventListener('resize', () => this._resize());
+    }
+
+    _resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        const size = Math.min(rect.width, rect.height) || 320;
+        this.renderer.setSize(size, size);
+    }
+
+    _animate() {
+        requestAnimationFrame(() => this._animate());
+
+        if (!this.cube) return;
+        const t = this.clock.getElapsedTime();
+
+        // Auto-rotate
+        this.cube.rotation.y += this.autoRotateSpeed;
+
+        // Apply velocity
+        if (!this.isDragging) {
+            this.velocity.x *= this.damping;
+            this.velocity.y *= this.damping;
+        }
+        this.cube.rotation.x += this.velocity.x;
+        this.cube.rotation.y += this.velocity.y;
+
+        // Gentle float
+        this.cube.position.y = Math.sin(t * 0.8) * 0.05;
+
+        // Particles
+        for (const p of this.particles) {
+            p.angle += p.speed * 0.008;
+            p.mesh.position.x = Math.cos(p.angle) * p.radius;
+            p.mesh.position.z = Math.sin(p.angle) * p.radius;
+            p.mesh.position.y = p.yBase + Math.sin(t * p.speed + p.angle) * 0.2;
+            p.mesh.material.opacity = 0.3 + 0.3 * Math.sin(t * 2 + p.angle);
+        }
+
+        this.renderer.render(this.scene, this.camera);
+    }
+}
+
+
+/* ═══════════════════════════════════════
    3D LOADING HEART
    ═══════════════════════════════════════ */
 class LoadingHeart3D {
@@ -325,6 +624,16 @@ class ValentineApp {
         // Start 3D loading heart immediately
         this.loadingHeart = new LoadingHeart3D('loading-canvas');
 
+        // Photo slideshow — cycle through photos
+        const photos = document.querySelectorAll('.loading-photo');
+        let currentPhoto = 0;
+
+        const photoTick = setInterval(() => {
+            photos[currentPhoto].classList.remove('active');
+            currentPhoto = (currentPhoto + 1) % photos.length;
+            photos[currentPhoto].classList.add('active');
+        }, 3000);
+
         // Cycle cute messages — show every single one
         let msgIndex = 0;
         const msgTick = setInterval(() => {
@@ -367,6 +676,7 @@ class ValentineApp {
 
             clearInterval(barTick);
             clearInterval(msgTick);
+            clearInterval(photoTick);
             if (bar) bar.style.width = '100%';
             if (pctEl) pctEl.textContent = '100%';
             if (msgEl) msgEl.textContent = 'Siap! Untukmu, sayang 🥰';
@@ -381,6 +691,8 @@ class ValentineApp {
                     loader.style.display = 'none';
                     if (this.loadingHeart) this.loadingHeart.destroy();
                     this.isLoaded = true;
+                    // Init photo cube
+                    this.photoCube = new PhotoCube3D('cube-canvas');
                     this._startEntrance();
                 }
             });
@@ -404,7 +716,7 @@ class ValentineApp {
         const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1 } });
 
         tl.to('.title', { y: 0, opacity: 1 })
-          .to('.image-wrapper', {
+          .to('.cube-wrapper', {
               y: 0, opacity: 1, scale: 1,
               duration: 1.4,
               ease: 'elastic.out(1, 0.6)'
@@ -488,37 +800,12 @@ class ValentineApp {
         });
     }
 
-    /* ── Interactions (tilt card) ── */
+    /* ── Interactions ── */
     _initInteractions() {
-        const card = document.querySelector('.tilt-card');
-        if (!card) return;
-
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const rx = ((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -12;
-            const ry = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 12;
-
-            gsap.to(card, {
-                duration: 0.5,
-                rotationX: rx,
-                rotationY: ry,
-                transformPerspective: 1200,
-                ease: 'power3.out',
-                overwrite: 'auto'
-            });
-        });
-
-        card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-                duration: 1,
-                rotationX: 0,
-                rotationY: 0,
-                ease: 'elastic.out(1, 0.4)',
-                overwrite: 'auto'
-            });
-        });
-
-        card.addEventListener('click', (e) => {
+        // Photo cube handles its own drag interaction
+        // Just add click sparkle on the page
+        document.addEventListener('click', (e) => {
+            if (!this.isLoaded) return;
             this._particle(e.clientX, e.clientY, 'sparkle-particle', ['❤️', '💖', '✨']);
         });
     }

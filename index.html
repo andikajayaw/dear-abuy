@@ -18,7 +18,18 @@
     <!-- Loading Screen -->
     <div id="loading-screen">
       <div class="loading-sparkles" id="loading-sparkles"></div>
+
+      <!-- Photo slideshow -->
+      <div class="loading-photos-wrap" id="loading-photos-wrap">
+        <img src="img/1.png" class="loading-photo active" />
+        <img src="img/2.png" class="loading-photo" />
+        <img src="img/3.png" class="loading-photo" />
+        <img src="img/4.jpg" class="loading-photo" />
+      </div>
+
+      <!-- 3D Heart (below photo) -->
       <canvas id="loading-canvas"></canvas>
+
       <div class="loading-content">
         <p class="loading-msg" id="loading-msg">Menyiapkan cinta... 💕</p>
         <div class="loading-bar-track">
@@ -26,6 +37,7 @@
         </div>
         <p class="loading-percent" id="loading-percent">0%</p>
       </div>
+
       <div class="loading-emojis">
         <span class="loading-emoji le-1">🌸</span>
         <span class="loading-emoji le-2">💝</span>
@@ -45,17 +57,9 @@
           >
         </h1>
 
-        <div class="image-wrapper tilt-card">
-          <img
-            src="img/cute_animals.jpg"
-            onerror="
-              this.onerror = null;
-              this.src =
-                'https://placehold.co/400x400/FFB6C1/FFF0F5?text=♥';
-            "
-            alt="Cute Elephant and Cat"
-            class="hero-image"
-          />
+        <div class="cube-wrapper" id="cube-wrapper">
+          <canvas id="cube-canvas"></canvas>
+          <p class="cube-hint">✨ drag to rotate ✨</p>
         </div>
 
         <div class="btn-container">
