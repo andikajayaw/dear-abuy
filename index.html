@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Valentine, Andini!</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Varela+Round&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <!-- Three.js 3D Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div class="loading-sparkles" id="loading-sparkles"></div>
+      <canvas id="loading-canvas"></canvas>
+      <div class="loading-content">
+        <p class="loading-msg" id="loading-msg">Menyiapkan cinta... 💕</p>
+        <div class="loading-bar-track">
+          <div class="loading-bar-fill" id="loading-bar"></div>
+        </div>
+        <p class="loading-percent" id="loading-percent">0%</p>
+      </div>
+      <div class="loading-emojis">
+        <span class="loading-emoji le-1">🌸</span>
+        <span class="loading-emoji le-2">💝</span>
+        <span class="loading-emoji le-3">✨</span>
+        <span class="loading-emoji le-4">🌷</span>
+        <span class="loading-emoji le-5">💖</span>
+        <span class="loading-emoji le-6">🦋</span>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="page-content" id="page-content">
+      <section class="hero">
+        <h1 class="title">
+          Happy Valentine,<br />Istriku<br /><span class="highlight"
+            >Andini Permata Sari</span
+          >
+        </h1>
+
+        <div class="image-wrapper tilt-card">
+          <img
+            src="img/cute_animals.jpg"
+            onerror="
+              this.onerror = null;
+              this.src =
+                'https://placehold.co/400x400/FFB6C1/FFF0F5?text=♥';
+            "
+            alt="Cute Elephant and Cat"
+            class="hero-image"
+          />
+        </div>
+
+        <div class="btn-container">
+          <button class="flower-btn" onclick="window.location.href='flowers.html'">
+            🌸 Get Your Flowers Here
+          </button>
+        </div>
+
+        <p class="love-note">
+          I love you more than words can say. ❤️
+        </p>
+      </section>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

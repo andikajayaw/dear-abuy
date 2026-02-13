@@ -1,0 +1,418 @@
+:root {
+  --bg-color: #fff0f5;
+  --primary-color: #ff69b4;
+  --secondary-color: #ffb6c1;
+  --text-color: #d63384;
+  --white: #ffffff;
+  --button-shadow: rgba(255, 105, 180, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.5);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  font-family: "Varela Round", sans-serif;
+  color: var(--text-color);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Three.js Canvas ── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Page Content ── */
+.page-content {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 2rem 1rem;
+  text-align: center;
+  position: relative;
+}
+
+.title {
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.title .highlight {
+  color: var(--text-color);
+  font-size: clamp(2.5rem, 10vw, 4.5rem);
+  display: block;
+  margin-top: 0.2rem;
+  filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.2));
+}
+
+/* ── Image Card ── */
+.image-wrapper {
+  width: 85%;
+  max-width: 380px;
+  margin: 1rem 0;
+  z-index: 1;
+  position: relative;
+  border-radius: 24px;
+  background: var(--glass-bg);
+  padding: 1.2rem;
+  box-shadow:
+    0 20px 40px rgba(255, 105, 180, 0.25),
+    0 0 0 1px var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: box-shadow 0.4s ease;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.image-wrapper:hover {
+  box-shadow:
+    0 30px 60px rgba(255, 105, 180, 0.35),
+    0 0 0 1px var(--glass-border);
+}
+
+.image-wrapper::before,
+.image-wrapper::after {
+  content: "❤️";
+  position: absolute;
+  font-size: 1.8rem;
+  filter: drop-shadow(0 4px 8px rgba(255, 105, 180, 0.4));
+  z-index: 10;
+  animation: floatingEmoji 3s infinite ease-in-out;
+}
+
+@keyframes floatingEmoji {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-10px) rotate(10deg);
+  }
+}
+
+.image-wrapper::before {
+  top: -20px;
+  left: -20px;
+}
+.image-wrapper::after {
+  bottom: -20px;
+  right: -20px;
+  animation-delay: 1.5s;
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+  backface-visibility: hidden;
+}
+
+/* ── Button ── */
+.btn-container {
+  margin: 1.5rem 0 2rem;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.flower-btn {
+  background: linear-gradient(135deg, var(--primary-color), #ff1493);
+  color: var(--white);
+  border: none;
+  padding: 1.2rem 2.8rem;
+  font-size: 1.25rem;
+  font-family: "Fredoka", sans-serif;
+  border-radius: 60px;
+  cursor: pointer;
+  box-shadow:
+    0 6px 0 #e0569e,
+    0 12px 25px var(--button-shadow);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.flower-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.flower-btn:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 #e0569e,
+    0 5px 15px var(--button-shadow);
+}
+
+.love-note {
+  font-size: 1.15rem;
+  font-weight: 500;
+  z-index: 4;
+  position: relative;
+  color: #c02a73;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* ── Loading Screen ── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    #fff5f8 0%,
+    #ffe6eb 50%,
+    #ffd6e0 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  overflow: hidden;
+}
+
+#loading-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 260px;
+  height: 260px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.loading-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  margin-top: 120px;
+}
+
+.loading-msg {
+  font-family: "Fredoka", sans-serif;
+  font-weight: 600;
+  color: #d63384;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  min-height: 1.6em;
+  transition: opacity 0.3s;
+}
+
+.loading-percent {
+  font-family: "Fredoka", sans-serif;
+  color: #ff69b4;
+  font-size: 0.85rem;
+  margin-top: 8px;
+  opacity: 0.7;
+}
+
+/* Loading bar */
+.loading-bar-track {
+  width: 220px;
+  height: 8px;
+  background: rgba(255, 105, 180, 0.12);
+  border-radius: 4px;
+  margin: 12px auto 0;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.loading-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff69b4, #ff1493, #ff69b4);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  animation: shimmer 1.5s infinite linear;
+  box-shadow: 0 0 10px rgba(255, 105, 180, 0.4);
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Floating emojis around the heart */
+.loading-emojis {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  z-index: 1;
+  transform: translate(-50%, -60%);
+}
+.loading-emoji {
+  position: absolute;
+  font-size: 1.6rem;
+  opacity: 0.6;
+  filter: drop-shadow(0 2px 6px rgba(255, 105, 180, 0.3));
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.le-1 {
+  animation: orbit1 4s infinite;
+}
+.le-2 {
+  animation: orbit2 5s infinite;
+}
+.le-3 {
+  animation: orbit3 3.5s infinite;
+}
+.le-4 {
+  animation: orbit4 4.5s infinite;
+}
+.le-5 {
+  animation: orbit5 5.5s infinite;
+}
+.le-6 {
+  animation: orbit6 3.8s infinite;
+}
+
+@keyframes orbit1 {
+  0%,
+  100% {
+    transform: translate(-110px, -40px) scale(0.8);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(-90px, -60px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+@keyframes orbit2 {
+  0%,
+  100% {
+    transform: translate(100px, -30px) scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(80px, -55px) scale(1);
+    opacity: 0.9;
+  }
+}
+@keyframes orbit3 {
+  0%,
+  100% {
+    transform: translate(-60px, 70px) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-80px, 50px) scale(0.8);
+    opacity: 0.7;
+  }
+}
+@keyframes orbit4 {
+  0%,
+  100% {
+    transform: translate(70px, 60px) scale(0.7);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(90px, 40px) scale(1);
+    opacity: 0.8;
+  }
+}
+@keyframes orbit5 {
+  0%,
+  100% {
+    transform: translate(0px, -90px) scale(0.9);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(10px, -110px) scale(1.1);
+    opacity: 0.7;
+  }
+}
+@keyframes orbit6 {
+  0%,
+  100% {
+    transform: translate(-30px, 100px) scale(0.8);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(-10px, 85px) scale(1);
+    opacity: 0.8;
+  }
+}
+
+/* Sparkle particles inside loading */
+.loading-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── Particles ── */
+.sparkle-particle,
+.petal-particle {
+  pointer-events: none;
+  will-change: transform, opacity;
+  position: fixed;
+}
+.sparkle-particle {
+  font-size: 1.5rem;
+  z-index: 10001;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+}
+.petal-particle {
+  font-size: 1.6rem;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .hero {
+    gap: 10px;
+  }
+  .image-wrapper {
+    width: 92%;
+    padding: 0.8rem;
+  }
+  .flower-btn {
+    padding: 1rem 2.2rem;
+    font-size: 1.1rem;
+  }
+}
