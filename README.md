@@ -103,7 +103,7 @@ Every line of code here is a small act of love — a pixel-perfect reminder that
 
 **Andini, if you're reading this:**
 
-_Kamu adalah alasan kenapa aku belajar coding — biar bisa bikin sesuatu yang indah untukmu. I love you, sekarang dan selamanya._ ❤️
+_Kamu adalah alasan kenapa aku semangat ngoding — biar bisa bikin sesuatu yang indah untukmu. I love you, sekarang dan selamanya._ ❤️
 
 ---
 
